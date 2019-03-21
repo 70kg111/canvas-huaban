@@ -31,6 +31,9 @@
 
         #xxx {
             display: block;
+            position:fixed;
+            top: 0;
+            left: 0;
         }
 
         .actions {
@@ -183,10 +186,10 @@
         blue.classList.remove('active');
     }
 
-    //手机画画的时候方式画面乱动
-    document.body.ontouchstart = function(eee){
-        eee.preventDefault();
-    }
+    //手机画画的时候防止画面乱动
+    // document.body.ontouchstart = function(eee){
+    //     eee.preventDefault();
+    // }
 
     //画线，两点之间连接的线
     function drawLine(x1, y1, x2, y2) {
