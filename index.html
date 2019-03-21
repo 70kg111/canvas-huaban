@@ -5,18 +5,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script src="//at.alicdn.com/t/font_1100584_ic3oi7xcmt.js"></script>
+    <script src="//at.alicdn.com/t/font_1100584_edt2l4ve57.js"></script>
     <link rel="stylesheet" href="./style.css">
 
     <title>canvas-demo</title>
 
     <style>
-        *{
+        * {
             margin: 0;
             padding: 0;
         }
+
         body {
-            margin: 0;
+            overflow: hidden;
+            /*禁用滚动*/
         }
 
         .icon {
@@ -53,15 +55,18 @@
             /*放大1.2倍*/
         }
 
-        ul,ol{
+        ul,
+        ol {
             list-style: none;
         }
-        .colors{
-            position:fixed;
-            top:65px;
+
+        .colors {
+            position: fixed;
+            top: 65px;
             left: 28px;
         }
-        .colors > li{
+
+        .colors>li {
             width: 20px;
             height: 20px;
             margin: 15px 0;
@@ -69,20 +74,25 @@
             box-shadow: 0 0 3px rgba(0, 0, 0, 0.95);
             transition: all 0.3s;
         }
-        .colors > li.blue{
+
+        .colors>li.blue {
             background: blue;
         }
-        .colors > li.green{
+
+        .colors>li.green {
             background: green;
         }
-        .colors > li.black{
+
+        .colors>li.black {
             background: black;
         }
-        .colors  li.active{
+
+        .colors li.active {
             transform: scale(1.2);
             border: 2px gray solid;
         }
 
+        ol {}
     </style>
 </head>
 
@@ -97,6 +107,9 @@
         <svg id="eraser" class="icon" aria-hidden="true">
             <use xlink:href="#icon-Eraser-Tool-copy"></use>
         </svg>
+        <svg id="download" class="icon" aria-hidden="true">
+            <use xlink:href="#icon-save"></use>
+        </svg>
 
         <!-- <button id="eraser">橡皮擦</button>
         <button id="brush">画笔</button> -->
@@ -107,6 +120,12 @@
         <li id="blue" class="blue"></li>
         <li id="green" class="green"></li>
         <li id="black" class="black active"></li>
+    </ol>
+
+    <!--添加画笔线条的粗细-->
+    <ol class="size">
+        <li id="xiLine" class="xiLine"></li>
+        <li id="cuLine" class="cuLine"></li>
     </ol>
 
 
@@ -133,20 +152,31 @@
         pen.classList.remove('active');
     }
 
+    //添加下载保存按钮
+    download.onclick = function(){
+        var url = yyy.toDataURL("image/png");
+        var a = document.createElement('a');
+        document.body.appendChild(a);
+        a.href = url;
+        a.download = '我的画';
+        a.target = '_blank';
+        a.click();
+    }
+
     //添加不同颜色的画笔
-    blue.onclick = function(){
+    blue.onclick = function () {
         context.strokeStyle = 'blue';
         blue.classList.add('active');   //点击后添加一个激活状态，然后 gerrn black 去除激活状态
         green.classList.remove('active');
         black.classList.remove('active');
     }
-    green.onclick = function(){
+    green.onclick = function () {
         context.strokeStyle = 'green';
         green.classList.add('active');
         blue.classList.remove('active');
         black.classList.remove('active');
     }
-    black.onclick = function(){
+    black.onclick = function () {
         context.strokeStyle = 'black';
         black.classList.add('active');
         green.classList.remove('active');
