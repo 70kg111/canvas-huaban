@@ -23,16 +23,18 @@
             top: 0;
             left: 0;
         }
-        .actions > #brush{
-            display: none;
-        }
-        .actions.x > #brush{
-            display: inline-block;
-        }
-        .actions.x > #eraser{
+
+        .actions>#brush {
             display: none;
         }
 
+        .actions.x>#brush {
+            display: inline-block;
+        }
+
+        .actions.x>#eraser {
+            display: none;
+        }
     </style>
 </head>
 
@@ -53,7 +55,7 @@
 
     autoSetCanvasSize(yyy);    //canvas实现全屏
 
-    listenToMouse(yyy);            //监听鼠标事件
+    listenToUser(yyy);            //监听鼠标事件
 
     //添加橡皮擦
     var eraserEnabled = false;
@@ -61,7 +63,7 @@
         eraserEnabled = true;
         actions.className = 'actions x';
     }
-    brush.onclick = function(){
+    brush.onclick = function () {
         eraserEnabled = false;
         actions.className = 'actions';
     }
@@ -91,46 +93,90 @@
         }
     }
 
-    //监听鼠标事件
-    function listenToMouse(canvas) {
+    //监听事件
+    function listenToUser(canvas) {
         //是否开始用
         var using = false;
         //判断第一个点和第二个点的连线
         var lastPoint = { x: undefined, y: undefined };
-        //1.鼠标点击下去
-        canvas.onmousedown = function (aaa) {
-            var x = aaa.clientX;
-            var y = aaa.clientY;
-            using = true;
-            if (eraserEnabled) {
-                context.clearRect(x - 5, y - 5, 10, 10);
-            } else {
-                lastPoint = { x: x, y: y };
+
+        //判断是手机还是电脑，就看其支不支持触屏，即是否有 ontouchstart 属性，这个就叫特性检测
+        if (document.body.ontouchstart !== undefined) {
+            //触屏设备
+            //移动端监听点击事件，和pc端一样，只需要换一套监听即可
+            //1.在触屏点一下
+            canvas.ontouchstart = function (aaa) {
+                var x = aaa.touches[0].clientX;
+                var y = aaa.touches[0].clientY;
+                using = true;
+                if (eraserEnabled) {
+                    context.clearRect(x - 5, y - 5, 10, 10);
+                } else {
+                    lastPoint = { x: x, y: y };
+                }
+            }
+            //在触屏上移动
+            canvas.ontouchmove = function (aaa) {
+                var x = aaa.touches[0].clientX;
+                var y = aaa.touches[0].clientY;
+                if (!using) {
+                    return
+                }
+                if (eraserEnabled) {
+                    context.clearRect(x - 5, y - 5, 10, 10);
+                } else {
+                    var newPoint = {
+                        x: x,
+                        y: y
+                    };
+                    drawLine(lastPoint.x, lastPoint.y, newPoint.x, newPoint.y);
+                    lastPoint = newPoint;   //最核心的一句话，将两个点之间相连
+                }
+            }
+            //3.手指离开触屏
+            canvas.ontouchend = function () {
+                using = false;
+                eraserEnabled = false;
+            }
+            
+        } else {
+            //电脑带鼠标设备
+            //1.鼠标点击下去
+            canvas.onmousedown = function (aaa) {
+                var x = aaa.clientX;
+                var y = aaa.clientY;
+                using = true;
+                if (eraserEnabled) {
+                    context.clearRect(x - 5, y - 5, 10, 10);
+                } else {
+                    lastPoint = { x: x, y: y };
+                }
+            }
+            //2.鼠标移动
+            canvas.onmousemove = function (aaa) {
+                var x = aaa.clientX;
+                var y = aaa.clientY;
+                if (!using) {
+                    return
+                }
+                if (eraserEnabled) {
+                    context.clearRect(x - 5, y - 5, 10, 10);
+                } else {
+                    var newPoint = {
+                        x: x,
+                        y: y
+                    };
+                    drawLine(lastPoint.x, lastPoint.y, newPoint.x, newPoint.y);
+                    lastPoint = newPoint;   //最核心的一句话，将两个点之间相连
+                }
+            }
+            //3.鼠标松开
+            canvas.onmouseup = function () {
+                using = false;
+                eraserEnabled = false;
             }
         }
-        //2.鼠标移动
-        canvas.onmousemove = function (aaa) {
-            var x = aaa.clientX;
-            var y = aaa.clientY;
-            if (!using) {
-                return
-            }
-            if (eraserEnabled) {
-                context.clearRect(x - 5, y - 5, 10, 10);
-            } else {
-                var newPoint = {
-                    x: x,
-                    y: y
-                };
-                drawLine(lastPoint.x, lastPoint.y, newPoint.x, newPoint.y);
-                lastPoint = newPoint;   //最核心的一句话，将两个点之间相连
-            }
-        }
-        //3.鼠标松开
-        canvas.onmouseup = function () {
-            using = false;
-            eraserEnabled = false;
-        }
+
     }
 
     // //画圆
