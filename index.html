@@ -5,13 +5,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="//at.alicdn.com/t/font_1100584_ic3oi7xcmt.js"></script>
     <link rel="stylesheet" href="./style.css">
 
     <title>canvas-demo</title>
 
     <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
         body {
             margin: 0;
+        }
+
+        .icon {
+            width: 1em;
+            height: 1em;
+            vertical-align: -0.15em;
+            fill: currentColor;
+            overflow: hidden;
         }
 
         #xxx {
@@ -22,19 +35,54 @@
             position: fixed;
             top: 0;
             left: 0;
+            padding: 20px;
         }
 
-        .actions>#brush {
-            display: none;
+        .actions>svg {
+            width: 2em;
+            height: 2em;
+            transition: all 0.3s;
+            /*过度为0.3秒，看上去更舒服*/
+            margin: 0 10px;
         }
 
-        .actions.x>#brush {
-            display: inline-block;
+        .actions svg.active {
+            /*判断是否激活改属性，如果激活就变为红色*/
+            fill: red;
+            transform: scale(1.3);
+            /*放大1.2倍*/
         }
 
-        .actions.x>#eraser {
-            display: none;
+        ul,ol{
+            list-style: none;
         }
+        .colors{
+            position:fixed;
+            top:65px;
+            left: 28px;
+        }
+        .colors > li{
+            width: 20px;
+            height: 20px;
+            margin: 15px 0;
+            border-radius: 50%;
+            box-shadow: 0 0 3px rgba(0, 0, 0, 0.95);
+            transition: all 0.3s;
+        }
+        .colors > li.blue{
+            background: blue;
+        }
+        .colors > li.green{
+            background: green;
+        }
+        .colors > li.black{
+            background: black;
+        }
+        .colors  li.active{
+            transform: scale(1.2);
+            border: 2px gray solid;
+        }
+
     </style>
 </head>
 
@@ -42,9 +90,24 @@
 
     <canvas id="xxx" width="300" height="300"></canvas>
     <div id="actions" class="actions">
-        <button id="eraser">橡皮擦</button>
-        <button id="brush">画笔</button>
+        <svg id="pen" class="active icon" aria-hidden="true">
+            <!--阿里巴巴矢量图标库引入 -->
+            <use xlink:href="#icon-pen"></use>
+        </svg>
+        <svg id="eraser" class="icon" aria-hidden="true">
+            <use xlink:href="#icon-Eraser-Tool-copy"></use>
+        </svg>
+
+        <!-- <button id="eraser">橡皮擦</button>
+        <button id="brush">画笔</button> -->
     </div>
+
+    <!--为画板添加三种可选颜色-->
+    <ol class="colors">
+        <li id="blue" class="blue"></li>
+        <li id="green" class="green"></li>
+        <li id="black" class="black active"></li>
+    </ol>
 
 
 </body>
@@ -57,17 +120,38 @@
 
     listenToUser(yyy);            //监听鼠标事件
 
-    //添加橡皮擦
+    //添加橡皮擦，判断是否用画笔还是橡皮檫
     var eraserEnabled = false;
+    pen.onclick = function () {
+        eraserEnabled = false;
+        pen.classList.add('active');    //点击后添加一个激活状态，然后 eraser 去除激活状态
+        eraser.classList.remove('active');
+    }
     eraser.onclick = function () {
         eraserEnabled = true;
-        actions.className = 'actions x';
-    }
-    brush.onclick = function () {
-        eraserEnabled = false;
-        actions.className = 'actions';
+        eraser.classList.add('active');
+        pen.classList.remove('active');
     }
 
+    //添加不同颜色的画笔
+    blue.onclick = function(){
+        context.strokeStyle = 'blue';
+        blue.classList.add('active');   //点击后添加一个激活状态，然后 gerrn black 去除激活状态
+        green.classList.remove('active');
+        black.classList.remove('active');
+    }
+    green.onclick = function(){
+        context.strokeStyle = 'green';
+        green.classList.add('active');
+        blue.classList.remove('active');
+        black.classList.remove('active');
+    }
+    black.onclick = function(){
+        context.strokeStyle = 'black';
+        black.classList.add('active');
+        green.classList.remove('active');
+        blue.classList.remove('active');
+    }
 
     //画线，两点之间连接的线
     function drawLine(x1, y1, x2, y2) {
@@ -120,7 +204,7 @@
                 var x = aaa.touches[0].clientX;
                 var y = aaa.touches[0].clientY;
                 if (!using) {
-                    return
+                    return;
                 }
                 if (eraserEnabled) {
                     context.clearRect(x - 5, y - 5, 10, 10);
@@ -136,9 +220,8 @@
             //3.手指离开触屏
             canvas.ontouchend = function () {
                 using = false;
-                eraserEnabled = false;
             }
-            
+
         } else {
             //电脑带鼠标设备
             //1.鼠标点击下去
@@ -147,7 +230,7 @@
                 var y = aaa.clientY;
                 using = true;
                 if (eraserEnabled) {
-                    context.clearRect(x - 5, y - 5, 10, 10);
+                    context.clearRect(x - 5, y - 5, 15, 15);
                 } else {
                     lastPoint = { x: x, y: y };
                 }
@@ -160,7 +243,7 @@
                     return
                 }
                 if (eraserEnabled) {
-                    context.clearRect(x - 5, y - 5, 10, 10);
+                    context.clearRect(x - 5, y - 5, 15, 15);
                 } else {
                     var newPoint = {
                         x: x,
@@ -173,7 +256,6 @@
             //3.鼠标松开
             canvas.onmouseup = function () {
                 using = false;
-                eraserEnabled = false;
             }
         }
 
