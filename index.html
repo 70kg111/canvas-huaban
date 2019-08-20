@@ -232,7 +232,7 @@
                 var y = aaa.touches[0].clientY;
                 using = true;
                 if (eraserEnabled) {
-                    context.clearRect(x - 5, y - 5, 10, 10);
+                    context.clearRect(x - 5, y - 5, 30, 30);
                 } else {
                     lastPoint = { x: x, y: y };
                 }
@@ -245,7 +245,7 @@
                     return;
                 }
                 if (eraserEnabled) {
-                    context.clearRect(x - 5, y - 5, 10, 10);
+                    context.clearRect(x - 5, y - 5, 30, 30);
                 } else {
                     var newPoint = {
                         x: x,
